@@ -1,0 +1,19 @@
+fastapi
+uvicorn[standard]
+
+pydantic
+pydantic-settings
+python-dotenv
+
+# Supabase: Auth + PostgreSQL/PostgREST
+supabase>=2.0,<3.0
+
+loguru
+pytest
+pytest-asyncio
+httpx
+groq
+python-multipart
+email-validator
+sentence-transformers
+chromadb
