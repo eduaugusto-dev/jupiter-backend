@@ -1,8 +1,7 @@
-
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class ChatRequest(BaseModel):
@@ -10,6 +9,7 @@ class ChatRequest(BaseModel):
     Requisição enviada ao Júpiter.
     """
     message: str
+    conversation_id: str | None = None
 
 
 class ChatResponse(BaseModel):
@@ -21,4 +21,4 @@ class ChatResponse(BaseModel):
     source: str
     conversation_id: str | None = None
     timestamp: datetime
-    metadata: dict[str, Any] = {}
+    metadata: dict[str, Any] = Field(default_factory=dict)

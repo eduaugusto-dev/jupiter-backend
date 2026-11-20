@@ -1,4 +1,3 @@
-
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.dependencies.auth import (
@@ -30,7 +29,7 @@ def chat(
     Endpoint principal do Júpiter.
 
     Autentica o colaborador, executa o agente
-    e registra a interação no Supabase.
+    e cria ou continua uma conversa no Supabase.
     """
     try:
         client = create_user_supabase_client(token)
@@ -39,12 +38,19 @@ def chat(
             question=request.message,
             client=client,
             user=user,
+            conversation_id=request.conversation_id,
         )
 
         return ChatResponse(**result)
 
     except HTTPException:
         raise
+
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=404,
+            detail=str(exc),
+        )
 
     except Exception:
         raise HTTPException(

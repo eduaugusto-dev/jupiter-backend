@@ -1,4 +1,4 @@
-from typing import Any
+from datetime import datetime, timezone
 
 
 def create_conversation(
@@ -18,48 +18,108 @@ def create_conversation(
         "status": "active",
     }
 
-    try:
-        conversation_result = (
-            client.table("conversations")
-            .insert(conversation_data)
-            .execute()
+    conversation_result = (
+        client.table("conversations")
+        .insert(conversation_data)
+        .execute()
+    )
+
+    conversations = conversation_result.data or []
+
+    if not conversations:
+        raise RuntimeError(
+            "Não foi possível criar a conversa no Supabase."
         )
 
-        conversations = conversation_result.data or []
+    conversation = conversations[0]
+    conversation_id = conversation["id"]
 
-        if not conversations:
-            raise RuntimeError(
-                "Não foi possível criar a conversa no Supabase."
-            )
+    messages_data = [
+        {
+            "conversation_id": conversation_id,
+            "role": "user",
+            "content": question,
+            "metadata": {},
+        },
+        {
+            "conversation_id": conversation_id,
+            "role": "assistant",
+            "content": response,
+            "metadata": {},
+        },
+    ]
 
-        conversation = conversations[0]
-        conversation_id = conversation["id"]
+    (
+        client.table("messages")
+        .insert(messages_data)
+        .execute()
+    )
 
-        messages_data = [
-            {
-                "conversation_id": conversation_id,
-                "role": "user",
-                "content": question,
-                "metadata": {},
-            },
-            {
-                "conversation_id": conversation_id,
-                "role": "assistant",
-                "content": response,
-                "metadata": {},
-            },
-        ]
+    return conversation
 
-        (
-            client.table("messages")
-            .insert(messages_data)
-            .execute()
+
+def add_messages_to_conversation(
+    client,
+    conversation_id: str,
+    employee_id: str,
+    question: str,
+    response: str,
+):
+    """
+    Adiciona mensagens a uma conversa existente.
+
+    Verifica se a conversa pertence ao colaborador
+    antes de registrar novas mensagens.
+    """
+
+    conversation_result = (
+        client.table("conversations")
+        .select("id")
+        .eq("id", str(conversation_id))
+        .eq("employee_id", str(employee_id))
+        .limit(1)
+        .execute()
+    )
+
+    conversations = conversation_result.data or []
+
+    if not conversations:
+        raise ValueError(
+            "Conversa não encontrada ou não pertence ao colaborador."
         )
 
-        return conversation
+    messages_data = [
+        {
+            "conversation_id": str(conversation_id),
+            "role": "user",
+            "content": question,
+            "metadata": {},
+        },
+        {
+            "conversation_id": str(conversation_id),
+            "role": "assistant",
+            "content": response,
+            "metadata": {},
+        },
+    ]
 
-    except Exception:
-        raise
+    (
+        client.table("messages")
+        .insert(messages_data)
+        .execute()
+    )
+
+    (
+        client.table("conversations")
+        .update({
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        })
+        .eq("id", str(conversation_id))
+        .eq("employee_id", str(employee_id))
+        .execute()
+    )
+
+    return conversations[0]
 
 
 def get_conversations_by_employee(
@@ -90,17 +150,18 @@ def get_all_conversations(
 ):
     """
     Retorna conversas do colaborador autenticado.
-
-    Não realiza consultas globais sem identificação
-    de colaborador.
     """
 
     return get_conversations_by_employee(
         client=client,
         employee_id=employee_id,
     )
-    
-def get_messages_by_conversation(client, conversation_id: str):
+
+
+def get_messages_by_conversation(
+    client,
+    conversation_id: str,
+):
     result = (
         client.table("messages")
         .select("*")
