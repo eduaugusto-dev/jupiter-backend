@@ -1,4 +1,7 @@
+
 from datetime import datetime
+from typing import Any
+
 from pydantic import BaseModel
 
 
@@ -18,3 +21,4 @@ class ChatResponse(BaseModel):
     source: str
     conversation_id: str | None = None
     timestamp: datetime
+    metadata: dict[str, Any] = {}

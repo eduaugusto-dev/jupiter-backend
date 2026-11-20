@@ -1,11 +1,14 @@
-from datetime import datetime
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends, HTTPException
 
-from app.schemas.chat import (
-    ChatRequest,
-    ChatResponse,
+from app.dependencies.auth import (
+    AuthenticatedUser,
+    get_current_user,
+    oauth2_scheme,
 )
+from app.database.supabase import create_user_supabase_client
+from app.schemas.chat import ChatRequest, ChatResponse
+from app.services.chat_service import chat as chat_service
 
 
 router = APIRouter(
@@ -19,26 +22,32 @@ router = APIRouter(
     response_model=ChatResponse
 )
 def chat(
-    request: ChatRequest
+    request: ChatRequest,
+    token: str = Depends(oauth2_scheme),
+    user: AuthenticatedUser = Depends(get_current_user),
 ):
     """
     Endpoint principal do Júpiter.
 
-    Futuramente:
-    - Conversation Manager
-    - Intent Classifier
-    - Decision Engine
-    - RAG
-    - LLM
+    Autentica o colaborador, executa o agente
+    e registra a interação no Supabase.
     """
+    try:
+        client = create_user_supabase_client(token)
 
-    return ChatResponse(
-        response=(
-            "Olá, sou o Júpiter, agente inteligente de RH "
-            "da SeguraOz. Como posso ajudar?"
-        ),
-        intent="GREETING",
-        source="system",
-        conversation_id=1,
-        timestamp=datetime.now()
-    )
+        result = chat_service(
+            question=request.message,
+            client=client,
+            user=user,
+        )
+
+        return ChatResponse(**result)
+
+    except HTTPException:
+        raise
+
+    except Exception:
+        raise HTTPException(
+            status_code=500,
+            detail="Não foi possível processar sua mensagem.",
+        )
