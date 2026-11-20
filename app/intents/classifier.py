@@ -82,6 +82,12 @@ def classify_intent(message: str) -> str:
         "bati ponto hoje",
         "registros de hoje",
         "horas registradas hoje",
+        "ultimo registro de ponto",
+        "meu ultimo registro de ponto",
+        "ultima marcacao de ponto",
+        "minha ultima marcacao",
+        "ultimo ponto registrado",
+        "qual foi meu ultimo registro de ponto",
     ]
 
     time_bank_personal_keywords = [
