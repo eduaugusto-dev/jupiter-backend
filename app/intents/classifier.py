@@ -28,6 +28,12 @@ def classify_intent(message: str) -> str:
         "quando serao minhas ferias",
         "quando vou tirar ferias",
         "tenho quantos dias de ferias",
+        "quando fico de ferias",
+        "quando entro de ferias",
+        "quando comecam minhas ferias",
+        "quando comeca minhas ferias",
+        "quais as datas das minhas ferias",
+        "quais sao as datas das minhas ferias",
     ]
 
     salary_personal_keywords = [
