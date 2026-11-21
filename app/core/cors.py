@@ -1,3 +1,4 @@
+
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -7,6 +8,8 @@ def configure_cors(app):
         allow_origins=[
             "http://localhost:3000",
             "http://localhost:8080",
+            "http://127.0.0.1:8787",
+            "http://localhost:8787",
         ],
         allow_origin_regex=r"https://.*\.vercel\.app",
         allow_credentials=True,
