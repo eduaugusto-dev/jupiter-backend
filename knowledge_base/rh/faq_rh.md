@@ -89,10 +89,17 @@ Para compreender um desconto específico, o colaborador deverá consultar seu de
 
 ### 4.1. Quais benefícios a SeguraOz oferece?
 
-A relação oficial de benefícios deverá ser consultada na documentação vigente da empresa ou junto ao Departamento de RH.
+A SeguraOz disponibiliza aos seus colaboradores os seguintes benefícios:
 
-O Júpiter não deverá apresentar benefícios como garantidos sem confirmação de que fazem parte das políticas da SeguraOz.
+- Vale-transporte;
+- Vale-refeição;
+- Vale-alimentação;
+- Assistência médica (plano de saúde);
+- Assistência odontológica (plano odontológico).
 
+As condições de concessão, elegibilidade e utilização devem seguir as políticas internas vigentes e os registros oficiais da empresa.
+
+Para informações detalhadas, o colaborador poderá consultar o documento de Política e Informações sobre Benefícios ou procurar o Departamento de RH.
 ### 4.2. Como posso consultar meus benefícios?
 
 As informações individuais dependerão dos registros e das funcionalidades disponíveis nos sistemas internos.

@@ -1,3 +1,4 @@
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.dependencies.auth import (
@@ -12,13 +13,13 @@ from app.services.chat_service import chat as chat_service
 
 router = APIRouter(
     prefix="/chat",
-    tags=["Chat"]
+    tags=["Chat"],
 )
 
 
 @router.post(
     "/",
-    response_model=ChatResponse
+    response_model=ChatResponse,
 )
 def chat(
     request: ChatRequest,
@@ -28,8 +29,8 @@ def chat(
     """
     Endpoint principal do Júpiter.
 
-    Autentica o colaborador, executa o agente
-    e cria ou continua uma conversa no Supabase.
+    Autentica o colaborador e executa o agente
+    sem persistir conversas ou mensagens no MVP.
     """
     try:
         client = create_user_supabase_client(token)
@@ -38,7 +39,6 @@ def chat(
             question=request.message,
             client=client,
             user=user,
-            conversation_id=request.conversation_id,
         )
 
         return ChatResponse(**result)

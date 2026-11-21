@@ -1,7 +1,6 @@
 
 from app.agent.orchestrator import agent
 from app.core.response_builder import build_chat_response
-from app.services.conversation_service import save_conversation
 
 
 def chat(
@@ -12,8 +11,8 @@ def chat(
     """
     Serviço principal de conversação do Júpiter.
 
-    Executa o agente utilizando o Supabase
-    e salva a interação do colaborador.
+    Executa consultas estruturadas ou RAG + LLM,
+    sem persistir mensagens no Supabase durante o MVP.
     """
 
     result = agent.execute(
@@ -22,17 +21,9 @@ def chat(
         client=client,
     )
 
-    conversation = save_conversation(
-        client=client,
-        employee_id=user.employee_id,
-        question=question,
-        response=result["response"],
-    )
-
     return build_chat_response(
         response=result["response"],
         intent=result["intent"],
         source=result["source"],
-        conversation_id=conversation.get("id"),
-        timestamp=None,
+        conversation_id=None,
     )

@@ -1,4 +1,3 @@
-
 import chromadb
 
 client = chromadb.PersistentClient(
@@ -12,12 +11,20 @@ collection = client.get_or_create_collection(
 
 def save_documents(chunks, embeddings):
     """
-    Salva os documentos e seus embeddings na coleção da nova base RH.
+    Atualiza integralmente os documentos e embeddings da base RH.
+
+    A função:
+    - valida a quantidade de chunks e embeddings;
+    - prepara os dados antes de alterar a coleção;
+    - remove os registros antigos;
+    - grava a nova indexação;
+    - evita IDs duplicados em reindexações.
     """
 
     if len(chunks) != len(embeddings):
         raise ValueError(
-            "A quantidade de chunks deve corresponder à quantidade de embeddings."
+            "A quantidade de chunks deve corresponder "
+            "à quantidade de embeddings."
         )
 
     if not chunks:
@@ -32,12 +39,23 @@ def save_documents(chunks, embeddings):
 
     for index, chunk in enumerate(chunks):
         ids.append(f"rh_v2_{index}")
-
         documents.append(chunk["content"])
         metadatas.append(chunk["metadata"])
         vectors.append(embeddings[index].tolist())
 
-    collection.add(
+    # Recupera os IDs existentes
+    existing_records = collection.get(
+        include=[]
+    )
+
+    existing_ids = existing_records.get("ids", [])
+
+    # Remove os registros antigos para reconstruir a base
+    if existing_ids:
+        collection.delete(ids=existing_ids)
+
+    # Grava a nova versão da base
+    collection.upsert(
         ids=ids,
         documents=documents,
         embeddings=vectors,
@@ -49,7 +67,6 @@ def save_documents(chunks, embeddings):
 
 def get_collection():
     """
-    Retorna a coleção da nova base de conhecimento RH.
+    Retorna a coleção da base de conhecimento RH.
     """
-
     return collection
