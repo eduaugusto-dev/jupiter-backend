@@ -6,6 +6,7 @@ def configure_cors(app):
         CORSMiddleware,
         allow_origins=[
             "http://localhost:3000",
+            "http://localhost:8080",
         ],
         allow_origin_regex=r"https://.*\.vercel\.app",
         allow_credentials=True,
