@@ -47,6 +47,28 @@ def classify_intent(message: str) -> str:
         "meu pagamento",
     ]
 
+    # Elegibilidade de benefícios
+    benefit_eligibility_keywords = [
+        "tenho direito ao beneficio",
+        "tenho direito a esse beneficio",
+        "tenho direito ao auxilio transporte",
+        "tenho direito ao vale transporte",
+        "tenho direito ao vale refeicao",
+        "tenho direito ao auxilio alimentacao",
+        "tenho direito ao auxilio home office",
+        "tenho direito ao plano de saude",
+        "tenho direito ao plano odontologico",
+        "posso receber auxilio transporte",
+        "posso receber vale transporte",
+        "posso receber vale refeicao",
+        "posso receber auxilio home office",
+        "sou elegivel ao beneficio",
+        "sou elegivel ao auxilio transporte",
+        "quais sao os criterios para receber o beneficio",
+        "quais sao os requisitos para receber o beneficio",
+    ]
+
+    # Benefícios em geral
     benefits_personal_keywords = [
         "meus beneficios",
         "quais sao meus beneficios",
@@ -55,11 +77,63 @@ def classify_intent(message: str) -> str:
         "beneficios tenho",
         "meus beneficios ativos",
         "beneficios ativos para mim",
-        "meu plano de saude",
-        "meu plano odontologico",
-        "meu vale refeicao",
-        "meu vale transporte",
+        "quais beneficios recebo",
+        "quais beneficios a empresa oferece para mim",
+        "quero consultar meus beneficios",
+        "consultar beneficios",
+
+        # Auxílio home office
         "meu auxilio home office",
+        "auxilio home office",
+        "quanto recebo de auxilio home office",
+        "qual o valor do auxilio home office",
+        "valor do meu auxilio home office",
+        "como funciona o auxilio home office",
+
+        # Plano de saúde
+        "meu plano de saude",
+        "plano de saude",
+        "meu convenio medico",
+        "convenio medico",
+        "quanto vale meu plano de saude",
+        "qual o valor do meu plano de saude",
+        "como funciona meu plano de saude",
+        "tenho plano de saude",
+
+        # Plano odontológico
+        "meu plano odontologico",
+        "plano odontologico",
+        "meu convenio odontologico",
+        "convenio odontologico",
+        "quanto vale meu plano odontologico",
+        "qual o valor do meu plano odontologico",
+        "como funciona meu plano odontologico",
+        "tenho plano odontologico",
+
+        # Vale-refeição
+        "meu vale refeicao",
+        "vale refeicao",
+        "quanto recebo de vale refeicao",
+        "qual o valor do meu vale refeicao",
+        "valor do vale refeicao",
+        "quanto tenho de vale refeicao",
+        "quando recebo meu vale refeicao",
+        "quando cai meu vale refeicao",
+        "como funciona meu vale refeicao",
+        "meu beneficio de alimentacao",
+        "auxilio alimentacao",
+
+        # Vale-transporte
+        "meu vale transporte",
+        "vale transporte",
+        "quanto recebo de vale transporte",
+        "qual o valor do meu vale transporte",
+        "valor do vale transporte",
+        "quanto tenho de vale transporte",
+        "quando recebo meu vale transporte",
+        "como funciona meu vale transporte",
+        "meu beneficio de transporte",
+        "auxilio transporte",
     ]
 
     time_clock_personal_keywords = [
@@ -154,6 +228,9 @@ def classify_intent(message: str) -> str:
 
     if any(keyword in message for keyword in salary_personal_keywords):
         return "VIEW_OWN_SALARY"
+
+    if any(keyword in message for keyword in benefit_eligibility_keywords):
+        return "CHECK_BENEFIT_ELIGIBILITY"
 
     if any(keyword in message for keyword in benefits_personal_keywords):
         return "VIEW_OWN_BENEFITS"
