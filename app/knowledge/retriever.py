@@ -121,10 +121,10 @@ def search_documents(query: str, limit: int = 3):
 
         filename = candidate["metadata"].get("filename", "")
 
-        if asks_about_company and filename == "empresa.md":
+        if asks_about_company and filename == "01_empresa_rh.md":
             candidate["final_score"] += 0.5
 
-        if asks_about_vacation and filename == "ferias.md":
+        if asks_about_vacation and filename == "04_jornada_e_ausencias.md":
             candidate["final_score"] += 0.3
 
     # Ordena os documentos pela pontuação final
