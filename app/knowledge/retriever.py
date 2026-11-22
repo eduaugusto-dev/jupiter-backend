@@ -1,10 +1,14 @@
 
+from functools import lru_cache
+
 from sentence_transformers import SentenceTransformer
 
 from app.knowledge.vector_store import get_collection
 
 
-model = SentenceTransformer("all-MiniLM-L6-v2")
+@lru_cache(maxsize=1)
+def get_embedding_model():
+    return SentenceTransformer("all-MiniLM-L6-v2")
 
 
 def search_documents(query: str, limit: int = 3):
@@ -21,6 +25,7 @@ def search_documents(query: str, limit: int = 3):
     if total_documents == 0:
         return []
 
+    model = get_embedding_model()
     query_embedding = model.encode(query).tolist()
 
     # Busca semântica
