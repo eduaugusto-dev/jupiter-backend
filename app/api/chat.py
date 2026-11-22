@@ -1,3 +1,4 @@
+
 import logging
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -47,6 +48,7 @@ def chat_endpoint(
             question=request.message,
             client=client,
             user=user,
+            conversation_id=request.conversation_id,
         )
 
         return result
