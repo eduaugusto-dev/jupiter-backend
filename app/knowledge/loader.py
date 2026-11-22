@@ -1,21 +1,18 @@
+
 from pathlib import Path
 
-
-BASE_PATH = Path("knowledge_base/rh")
+BASE_PATH = Path("rh_consolidado")
 
 
 def load_documents():
     """
-    Carrega todos os documentos Markdown da base de conhecimento RH.
+    Carrega os documentos Markdown consolidados da base de conhecimento RH.
     """
 
     documents = []
 
-    for file_path in BASE_PATH.glob("*.md"):
-
-        content = file_path.read_text(
-            encoding="utf-8"
-        )
+    for file_path in sorted(BASE_PATH.glob("*.md")):
+        content = file_path.read_text(encoding="utf-8")
 
         document = {
             "content": content,
@@ -32,13 +29,9 @@ def load_documents():
 
 
 if __name__ == "__main__":
-
     docs = load_documents()
 
     print(f"Documentos encontrados: {len(docs)}")
 
     for doc in docs:
-        print(
-            "-",
-            doc["metadata"]["filename"]
-        )
+        print("-", doc["metadata"]["filename"])
