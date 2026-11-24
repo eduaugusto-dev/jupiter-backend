@@ -1,0 +1,137 @@
+
+from functools import lru_cache
+
+from sentence_transformers import SentenceTransformer
+
+from app.knowledge.vector_store import get_collection
+
+
+@lru_cache(maxsize=1)
+def get_embedding_model():
+    return SentenceTransformer("all-MiniLM-L6-v2")
+
+
+def search_documents(query: str, limit: int = 3):
+    """
+    Recuperação híbrida:
+    combina busca semântica e correspondência textual,
+    com prioridade temática para documentos específicos.
+    """
+
+    collection = get_collection()
+
+    total_documents = collection.count()
+
+    if total_documents == 0:
+        return []
+
+    model = get_embedding_model()
+    query_embedding = model.encode(query).tolist()
+
+    semantic_results = collection.query(
+        query_embeddings=[query_embedding],
+        n_results=min(20, total_documents),
+        include=["documents", "metadatas", "distances"]
+    )
+
+    candidates = {}
+
+    documents = semantic_results.get("documents", [[]])[0]
+    metadatas = semantic_results.get("metadatas", [[]])[0]
+    distances = semantic_results.get("distances", [[]])[0]
+
+    for document, metadata, distance in zip(
+        documents, metadatas, distances
+    ):
+        filename = metadata.get("filename", "")
+        chunk_id = filename + str(metadata.get("chunk", ""))
+
+        candidates[chunk_id] = {
+            "content": document,
+            "metadata": metadata,
+            "semantic_score": 1 / (1 + distance),
+            "keyword_score": 0
+        }
+
+    query_terms = {
+        term.lower().strip(".,?!;:")
+        for term in query.split()
+        if len(term) > 2
+    }
+
+    all_records = collection.get(
+        include=["documents", "metadatas"]
+    )
+
+    all_documents = all_records.get("documents", [])
+    all_metadatas = all_records.get("metadatas", [])
+
+    for document, metadata in zip(all_documents, all_metadatas):
+        filename = metadata.get("filename", "")
+        chunk_id = filename + str(metadata.get("chunk", ""))
+
+        content_lower = document.lower()
+
+        matches = sum(
+            1 for term in query_terms
+            if term in content_lower
+        )
+
+        if matches:
+            if chunk_id not in candidates:
+                candidates[chunk_id] = {
+                    "content": document,
+                    "metadata": metadata,
+                    "semantic_score": 0,
+                    "keyword_score": 0
+                }
+
+            candidates[chunk_id]["keyword_score"] = (
+                matches / max(len(query_terms), 1)
+            )
+
+    institutional_terms = {
+        "missão", "visão", "valores",
+        "identidade", "institucional", "cultura"
+    }
+
+    asks_about_company = bool(
+        query_terms.intersection(institutional_terms)
+    )
+
+    vacation_terms = {
+        "férias", "ferias", "solicitação",
+        "solicitar", "descanso", "gozo"
+    }
+
+    asks_about_vacation = bool(
+        query_terms.intersection(vacation_terms)
+    )
+
+    for candidate in candidates.values():
+        candidate["final_score"] = (
+            candidate["semantic_score"] * 0.6
+            + candidate["keyword_score"] * 0.4
+        )
+
+        filename = candidate["metadata"].get("filename", "")
+
+        if asks_about_company and filename == "empresa.md":
+            candidate["final_score"] += 0.5
+
+        if asks_about_vacation and filename == "ferias.md":
+            candidate["final_score"] += 0.3
+
+    ranked = sorted(
+        candidates.values(),
+        key=lambda item: item["final_score"],
+        reverse=True
+    )
+
+    return [
+        {
+            "content": item["content"],
+            "metadata": item["metadata"]
+        }
+        for item in ranked[:limit]
+    ]
